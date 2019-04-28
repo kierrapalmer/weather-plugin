@@ -7,8 +7,8 @@
 		$zip = $_POST['zip'];
 
 		// Setup cURL with authentication token and location
-		$ch = curl_init($url.'/current.json?key='.$authToken.'&q='.$zip);
-		curl_setopt_array($ch, array(
+		$forecast = curl_init($url.'/forecast.json?key='.$authToken.'&q='.$zip.'&days=5');
+		curl_setopt_array($forecast, array(
 			CURLOPT_POST => TRUE,
 			CURLOPT_RETURNTRANSFER => TRUE,
 			CURLOPT_HTTPHEADER => array(
@@ -18,20 +18,18 @@
 		));
 
 
-		// Send request
-		$response = curl_exec($ch);
+		// Send requests
+		$responseForecast = curl_exec($forecast);
 
 		// Check for errors
-		if($response === FALSE){
-			die(curl_error($ch));
+		if($responseForecast === FALSE) {
+			die(curl_error($forecast));
+
 		}
 
-		// Decode the response
-		$responseData = json_decode($response, TRUE);
+			// Decode the response
+		//$responseData = json_decode($responseCurrent, TRUE);
 
-
-		// Print the date from the response
-		//echo $responseData['current']['temp_f'];
 
 	}
 ?>
@@ -52,10 +50,27 @@
 
 	<script>
         $(document).ready(function() {
-            $apiResponse = <?php echo $response?>;
+            $apiResponseForecast = <?php echo $responseForecast?>;
 
-            $('#currentWeather').append($apiResponse["current"]["temp_f"]);
 
+            $('#location #cityState').append($apiResponseForecast['location']['name'] +', '+ $apiResponseForecast['location']['region']);
+
+            $('#currentWeather .avgTemp').append($apiResponseForecast['current']['temp_f'] + '&deg;F');
+            $('#currentWeather .precip').append($apiResponseForecast['current']['precip_in']+ ' in');
+            $('#currentWeather .humidity').append($apiResponseForecast['current']['humidity']+ '&percnt;');
+            $('#currentWeather .wind').append($apiResponseForecast['current']['wind_mph']+ ' mph');
+            $('#currentWeather .windDirection').append($apiResponseForecast['current']['wind_dir']);
+
+
+            for(let day=0; day<5; day++) {
+                $('#forecastDay'+day+' .date').append($apiResponseForecast['forecast']['forecastday'][day]['date']);
+                $('#forecastDay'+day+' .avgTemp').append($apiResponseForecast['forecast']['forecastday'][day]['day']['avgtemp_f'] + '&deg;F');
+                $('#forecastDay'+day+' .maxTemp').append($apiResponseForecast['forecast']['forecastday'][day]['day']['maxtemp_f']+ '&deg;F');
+                $('#forecastDay'+day+' .minTemp').append($apiResponseForecast['forecast']['forecastday'][day]['day']['mintemp_f']+ '&deg;F');
+                $('#forecastDay'+day+' .precip').append($apiResponseForecast['forecast']['forecastday'][day]['day']['totalprecip_in']+ ' in');
+                $('#forecastDay'+day+' .humidity').append($apiResponseForecast['forecast']['forecastday'][day]['day']['avghumidity']+ '&percnt;');
+                $('#forecastDay'+day+' .wind').append($apiResponseForecast['forecast']['forecastday'][day]['day']['maxwind_mph']+ ' mph');
+            }
 
         });
 	</script>
@@ -65,9 +80,63 @@
 <form action="#" method="post">
 	<input type="text" name="zip" id="zip">
 	<input type="submit">
-
+	<div id="location">
+		<h2 id="cityState">Location: </h2>
+	</div>
 	<div id="currentWeather">
+		<h2>Current Weather</h2>
+		<p class="avgTemp">Average Temperature: </p>
+		<p class="precip">Precipitation: </p>
+		<p class="humidity">Humidity: </p>
+		<p class="wind">Wind Speed: </p>
+		<p class="windDirection">Wind Direction: </p>
 
+	</div>
+
+	<div id="forecastDay0">
+		<h2 class="date">Day 1 - </h2>
+		<p class="avgTemp">Average Temperature: </p>
+		<p class="maxTemp">Max Temperature: </p>
+		<p class="minTemp">Min Temperature: </p>
+		<p class="precip">Precipitation: </p>
+		<p class="humidity">Humidity: </p>
+		<p class="wind">Wind Speed: </p>
+	</div>
+	<div id="forecastDay1">
+		<h2 class="date">Day 2 - </h2>
+		<p class="avgTemp">Average Temperature: </p>
+		<p class="maxTemp">Max Temperature: </p>
+		<p class="minTemp">Min Temperature: </p>
+		<p class="precip">Precipitation: </p>
+		<p class="humidity">Humidity: </p>
+		<p class="wind">Wind Speed: </p>
+	</div>
+	<div id="forecastDay2">
+		<h2 class="date">Day 3 - </h2>
+		<p class="avgTemp">Average Temperature: </p>
+		<p class="maxTemp">Max Temperature: </p>
+		<p class="minTemp">Min Temperature: </p>
+		<p class="precip">Precipitation: </p>
+		<p class="humidity">Humidity: </p>
+		<p class="wind">Wind Speed: </p>
+	</div>
+	<div id="forecastDay3">
+		<h2 class="date">Day 4 - </h2>
+		<p class="avgTemp">Average Temperature: </p>
+		<p class="maxTemp">Max Temperature: </p>
+		<p class="minTemp">Min Temperature: </p>
+		<p class="precip">Precipitation: </p>
+		<p class="humidity">Humidity: </p>
+		<p class="wind">Wind Speed: </p>
+	</div>
+	<div id="forecastDay4">
+		<h2 class="date">Day 5 - </h2>
+		<p class="avgTemp">Average Temperature: </p>
+		<p class="maxTemp">Max Temperature: </p>
+		<p class="minTemp">Min Temperature: </p>
+		<p class="precip">Precipitation: </p>
+		<p class="humidity">Humidity: </p>
+		<p class="wind">Wind Speed: </p>
 	</div>
 </form>
 </body>
