@@ -52,10 +52,23 @@
 		//Call API and get weather forecast
 		$responseData = get_weather_forecast($atts['zip']);
 
-		if($atts['day'] == 5)
+
+		if($atts['day'] == 5) {
+			if($atts['measurement'] == 'conditionIcon')
+				return $responseData['current']['condition']['icon'];
+			else if($atts['measurement'] == 'conditionText')
+				return $responseData['current']['condition']['text'];
+
 			return $responseData['current'][$atts['measurement']];
-		else
+		}
+		else {
+			if($atts['measurement'] == 'conditionIcon')
+				return $responseData['forecast']['forecastday'][$atts['day']]['day']['condition']['icon'];
+			else if($atts['measurement'] == 'conditionText')
+				return $responseData['forecast']['forecastday'][$atts['day']]['day']['condition']['text'];
+
 			return $responseData['forecast']['forecastday'][$atts['day']]['day'][$atts['measurement']];
+		}
 	}
 
 	function get_location($atts){
@@ -71,12 +84,33 @@
 		//Call API and get weather forecast
 		$responseData = get_weather_forecast($atts['zip']);
 
-		return $responseData['location'][$atts['name']] . ', ' . $responseData['location'][$atts['region']];
+		return $responseData['location']['name'] . ', ' . $responseData['location']['region'];
+
+	}
+
+	function get_date($atts){
+		$atts = shortcode_atts( array(
+			'zip'  => '0',
+			'day'   => null,
+		), $atts, 'forecast_date' );
+
+		//Error checking
+		if($atts['zip'] == '0'){
+			die("No Zip entered");
+		}else if($atts['day'] == null){
+			die("No day entered");
+		}
+
+		//Call API and get weather forecast
+		$responseData = get_weather_forecast($atts['zip']);
+		$date=date_create($responseData['forecast']['forecastday'][$atts['day']]['date']);
+		return date_format($date,"m/d");
 
 	}
 
 	add_shortcode( "weather_forecast", "get_weather" );
 	add_shortcode( "forecast_location", "get_location" );
+	add_shortcode( "forecast_date", "get_date" );
 
 
 	//		$zip = $_POST['zip'];
